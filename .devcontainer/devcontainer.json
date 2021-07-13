@@ -1,0 +1,28 @@
+{
+  "name": "Vaccine App - Docker Remote Container",
+
+  "dockerComposeFile": ["../docker-compose.yaml", "docker-compose.yaml"],
+
+  "service": "vaccine_app",
+
+  "workspaceFolder": "/vaccine",
+
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/zsh"
+  },
+
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+    "donjayamanne.githistory",
+    "eamodio.gitlens",
+    "rbbit.typescript-hero",
+    "gruntfuggly.todo-tree",
+    "shd101wyy.markdown-preview-enhanced",
+    "orta.vscode-jest"
+  ],
+
+  "forwardPorts": [3333, 9229, 7001],
+
+  "postCreateCommand": "yarn"
+}
