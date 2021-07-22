@@ -7,8 +7,9 @@ import { ComorbiditiesModule } from './comorbidities/comorbidities.module'
 import { PriorityGroupsModule } from './priority-groups/priority-groups.module'
 import { VaccinesModule } from './vaccines/vaccines.module'
 import { RoomsModule } from './rooms/rooms.module'
-import typeormConfig from './configs/typeorm.config'
+import typeormConfig from './config/typeorm.config'
 import { LoggerMiddleware } from './commons/middlewares/logger.middleware'
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { LoggerMiddleware } from './commons/middlewares/logger.middleware'
     PriorityGroupsModule,
     ComorbiditiesModule,
     VaccinesModule,
-    RoomsModule
+    RoomsModule,
+    AdminModule
   ]
 })
 export class AppModule implements NestModule {

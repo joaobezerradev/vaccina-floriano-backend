@@ -12,12 +12,12 @@ export abstract class BaseEntity extends TypeOrmBaseEntity {
   @PrimaryColumn('uuid', { primary: true })
   id: string = uuid()
 
-  @CreateDateColumn()
-  createdAt: Date
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: string
 
-  @UpdateDateColumn()
-  updatedAt: Date
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: string
 
-  @DeleteDateColumn({ nullable: true })
-  deletedAt: Date | null
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deletedAt: string | null
 }

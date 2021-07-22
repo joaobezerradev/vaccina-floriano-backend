@@ -23,8 +23,8 @@ export class UserEntity extends BaseEntity {
   @Column({ unique: true })
   email: string
 
-  @Column({ nullable: true })
-  emailConfirmedAt: Date | null
+  @Column({ type: 'timestamp', nullable: true })
+  emailConfirmedAt: string | null
 
   @Column()
   password: string
@@ -33,12 +33,14 @@ export class UserEntity extends BaseEntity {
   securityStamp = this.generateSecurityStamp()
 
   @OneToOne(() => UserAddressEntity, userAddresses => userAddresses.user, {
-    cascade: ['insert']
+    cascade: ['insert'],
+    nullable: true
   })
   userAddress: UserAddressEntity
 
   @OneToOne(() => UserMetadataEntity, userMetadata => userMetadata.user, {
-    cascade: ['insert']
+    cascade: ['insert'],
+    nullable: true
   })
   userMetadata: UserMetadataEntity
 

@@ -1,8 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiTags } from '@nestjs/swagger'
 import { PriorityGroupEntity } from '../priority-groups/priority-group.entity'
 import { ComorbiditiesService } from './comorbidities.service'
+import { CreateComorbidityDto } from './dtos/create-comorbidity.dto'
 
 @Controller('comorbidities')
+@ApiTags('comorbidities')
+@UseGuards(AuthGuard('jwt'))
 export class ComorbiditiesController {
   constructor (private readonly comorbiditiesService: ComorbiditiesService) {}
 
@@ -13,8 +18,8 @@ export class ComorbiditiesController {
 
   @Post()
   create (
-    @Body('message') message: string
+    @Body() createComorbidity: CreateComorbidityDto
   ): Promise<PriorityGroupEntity> {
-    return this.comorbiditiesService.createComorbidity(message)
+    return this.comorbiditiesService.createComorbidity(createComorbidity)
   }
 }

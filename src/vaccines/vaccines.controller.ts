@@ -1,17 +1,19 @@
-import { Controller, Post, Body, Get } from '@nestjs/common'
+import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common'
 import { VaccinesService } from './vaccines.service'
-import { CreateVaccineDto } from './dto/create-vaccine.dto'
+import { CreateVaccineDto } from './dtos/create-vaccine.dto'
 import { VaccineEntity } from './vaccine.entity'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller('vaccines')
+@ApiTags('vaccines')
+@UseGuards(AuthGuard('jwt'))
 export class VaccinesController {
   constructor (private readonly vaccinesService: VaccinesService) {}
 
   @Get()
   async find ():Promise<VaccineEntity[]> {
-    const count = await this.vaccinesService.find()
-    console.log(count.length)
-    return count
+    return this.vaccinesService.find()
   }
 
   @Post()

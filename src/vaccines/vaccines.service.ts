@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RoomsService } from '../rooms/rooms.service'
-import { CreateVaccineDto } from './dto/create-vaccine.dto'
+import { CreateVaccineDto } from './dtos/create-vaccine.dto'
 import { VaccineEntity } from './vaccine.entity'
 import { VaccineRepository } from './vaccine.repository'
-import { setHours } from 'date-fns'
 import { VaccineHour } from './enums/vaccine-hour.enum'
 import { MoreThanOrEqual } from 'typeorm'
+import { getUTCTimestamp, setHoursInDay } from '../commons/date'
 
 @Injectable()
 export class VaccinesService {
@@ -67,7 +67,7 @@ export class VaccinesService {
   private async createVaccines (createVaccineDto: Omit<CreateVaccineDto, 'amount'>, vaccineHour: VaccineHour, amount: number): Promise<void> {
     const { batch, day, name, note, roomId } = createVaccineDto
     const vaccines: VaccineEntity[] = []
-    const newDate = setHours(new Date(day), Number(vaccineHour))
+    const newDate = setHoursInDay(day, Number(vaccineHour))
     for (let i = 1; i <= amount; i++) {
       const vaccine = this.vaccineRepository.create({
         day: newDate,
@@ -81,7 +81,7 @@ export class VaccinesService {
     await this.vaccineRepository.save(vaccines)
   }
 
-  async findByRoom (roomId: string, appointmentDate: Date): Promise<VaccineEntity[]> {
+  async findByRoom (roomId: string, appointmentDate: string): Promise<VaccineEntity[]> {
     const foundVaccines = await this.vaccineRepository.find({
       where: {
         deletedAt: null,
@@ -100,7 +100,17 @@ export class VaccinesService {
     return this.vaccineRepository.find({ where: { deletedAt: null } })
   }
 
-  async save (vaccine:VaccineEntity):Promise<VaccineEntity> {
+  async save (vaccine: VaccineEntity): Promise<VaccineEntity> {
+    return this.vaccineRepository.save(vaccine)
+  }
+
+  async setCommonUserAsVaccinated (personPhysicalCard: string): Promise<VaccineEntity> {
+    const vaccine = await this.vaccineRepository.getUserVaccine(personPhysicalCard)
+
+    if (!vaccine) throw new NotFoundException(`Vaccine not found with user CPF ${personPhysicalCard}`)
+
+    vaccine.applyAt = getUTCTimestamp()
+
     return this.vaccineRepository.save(vaccine)
   }
 }

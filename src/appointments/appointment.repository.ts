@@ -1,4 +1,3 @@
-import { now } from '../commons/utils/now.date'
 import { EntityRepository, Repository } from 'typeorm'
 import { AppointmentEntity } from './appointment.entity'
 import { GetAppointmentDto } from './dtos/get-appointment.dto'
@@ -11,12 +10,6 @@ export class AppointmentRepository extends Repository<AppointmentEntity> {
         deletedAt: null
       }
     })
-  }
-
-  async removeAppointment (appointment: AppointmentEntity): Promise<void> {
-    appointment.deletedAt = now()
-
-    await this.save(appointment)
   }
 
   async getAppointment (

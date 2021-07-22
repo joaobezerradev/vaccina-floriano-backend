@@ -7,11 +7,11 @@ import { VaccineEntity } from '../vaccines/vaccine.entity'
 
 @Entity('appointments')
 export class AppointmentEntity extends BaseEntity {
-  @Column()
-  date: Date
+  @Column({ type: 'timestamp' })
+  date: string
 
-  @Column()
-  doseNumber: number
+  @Column({ nullable: true })
+  doseNumber: number | null
 
   @Column('uuid')
   userId: string
@@ -23,8 +23,8 @@ export class AppointmentEntity extends BaseEntity {
   @Column()
   comorbidityId: string
 
-  @Column({ nullable: true })
-  concludeAt: Date
+  @Column({ type: 'timestamp', nullable: true })
+  concludeAt: string
 
   @ManyToOne(() => ComorbidityEntity)
   @JoinColumn()

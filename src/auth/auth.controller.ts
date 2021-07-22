@@ -12,7 +12,7 @@ import { Token } from './types/token.type'
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor (private authService: AuthService) {}
+  constructor (private readonly authService: AuthService) {}
 
   @Post('/sign-up')
   async signUp (

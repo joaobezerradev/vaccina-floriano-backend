@@ -12,7 +12,7 @@ export class UserMetadataEntity extends BaseEntity {
   gender: UserGender
 
   @Column()
-  birthDate: Date
+  birthDate: string
 
   @Column()
   phone: string

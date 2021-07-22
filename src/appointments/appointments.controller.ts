@@ -1,21 +1,25 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common'
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common'
 import { AppointmentEntity } from './appointment.entity'
 import { AppointmentsService } from './appointments.service'
 import { CreateAppointmentDto } from './dtos/create-appointment.dto'
 import { GetUser } from '../auth/decorators/get-user.decorator'
 import { UserEntity } from '../users/user.entity'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller('appointments')
+@ApiTags('appointments')
+@UseGuards(AuthGuard('jwt'))
 export class AppointmentsController {
-  constructor (private readonly appointmentsService: AppointmentsService) {}
+  constructor (private readonly appointmentsService: AppointmentsService) { }
 
   @Post()
   create (
     @GetUser() user: UserEntity,
     @Body() createAppointmentDto: CreateAppointmentDto
-  ) :Promise<AppointmentEntity> {
+  ): Promise<AppointmentEntity> {
     return this.appointmentsService.createAppointment(
-      createAppointmentDto
+      createAppointmentDto, user
     )
   }
 

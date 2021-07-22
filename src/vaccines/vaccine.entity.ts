@@ -6,8 +6,8 @@ import { UserEntity } from '../users/user.entity'
 
 @Entity('vaccines')
 export class VaccineEntity extends BaseEntity {
-  @Column()
-  day: Date
+  @Column({ type: 'timestamp' })
+  day: string
 
   @Column()
   name: string
@@ -18,8 +18,8 @@ export class VaccineEntity extends BaseEntity {
   @Column()
   note: string
 
-  @Column({ nullable: true })
-  applyAt: Date | null
+  @Column({ type: 'timestamp', nullable: true })
+  applyAt: string | null
 
   @Column('uuid', { nullable: true })
   ownerId: string | null

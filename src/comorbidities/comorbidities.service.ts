@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { ComorbidityEntity } from './comorbidity.entity'
 import { ComorbidityRepository } from './comorbidity.repository'
+import { CreateComorbidityDto } from './dtos/create-comorbidity.dto'
 
 @Injectable()
 export class ComorbiditiesService {
@@ -10,10 +11,8 @@ export class ComorbiditiesService {
     private comorbidityRepository: ComorbidityRepository
   ) {}
 
-  async createComorbidity (message: string): Promise<ComorbidityEntity> {
-    const newComorbidity = this.comorbidityRepository.create({
-      message
-    })
+  async createComorbidity (createComorbidity: CreateComorbidityDto): Promise<ComorbidityEntity> {
+    const newComorbidity = this.comorbidityRepository.create(createComorbidity)
 
     return this.comorbidityRepository.save(newComorbidity)
   }

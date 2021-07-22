@@ -11,13 +11,13 @@ export abstract class BaseDto {
 
   @ApiProperty()
   @Expose()
-  createddate: Date
+  createddate: string
 
   @ApiHideProperty()
   @Exclude()
-  updateddate: Date
+  updateddate: string
 
   @ApiHideProperty()
   @Exclude()
-  deleteddate: Date
+  deleteddate: string
 }

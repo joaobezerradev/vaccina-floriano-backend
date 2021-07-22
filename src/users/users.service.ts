@@ -1,24 +1,21 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import * as bcrypt from 'bcrypt'
-import { AuthCredentialsDto } from '../auth/dtos/auth-credentials-filter.dto'
-import { now } from '../commons/utils/now.date'
 import { errorHandler } from '../commons/handlers/error.handler'
+import * as bcrypt from 'bcrypt'
+
+import { AuthCredentialsDto } from '../auth/dtos/auth-credentials-filter.dto'
 
 import { CreateUserDto } from './dtos/create-user.dto'
 import { UserAddressEntity } from './user-address.entity'
-import { UserEntity } from './user.entity'
-import { UserRoleEnum } from './enums/user-role.enum'
-import { UserRepository } from './user.repository'
 import { UserMetadataEntity } from './user-metadata.entity'
-import { Connection } from 'typeorm'
+import { UserEntity } from './user.entity'
+import { UserRepository } from './user.repository'
 
 @Injectable()
 export class UsersService {
   constructor (
     @InjectRepository(UserRepository)
-    private readonly userRepository: UserRepository,
-    private readonly connection:Connection
+    private readonly userRepository: UserRepository
   ) { }
 
   async findOne (userId: string): Promise<UserEntity> {
@@ -42,6 +39,7 @@ export class UsersService {
       email,
       personPhysicalCard,
       password,
+      role,
       address,
       metadata
     } = createUserDto
@@ -51,11 +49,9 @@ export class UsersService {
       personPhysicalCard
     })
 
-    if (foundUser) {
-      throw new ConflictException('User already exists.')
-    }
+    if (foundUser) throw new ConflictException('User already exists.')
 
-    const queryRunner = this.connection.createQueryRunner()
+    const queryRunner = this.userRepository.getConnection().createQueryRunner()
     await queryRunner.connect()
     await queryRunner.startTransaction()
 
@@ -63,20 +59,27 @@ export class UsersService {
       const salt = bcrypt.genSaltSync()
       const passwordHash = bcrypt.hashSync(password, salt)
 
-      const userMetadata = new UserMetadataEntity()
-      Object.assign(userMetadata, metadata, { birthDate: now() })
+      let userMetadata: UserMetadataEntity
+      let userAddress: UserAddressEntity
 
-      const userAddress = new UserAddressEntity()
-      Object.assign(userAddress, address)
+      if (metadata) {
+        userMetadata = new UserMetadataEntity()
+        Object.assign(userMetadata, metadata)
+      }
+
+      if (address) {
+        userAddress = new UserAddressEntity()
+        Object.assign(userAddress, address)
+      }
 
       const user = this.userRepository.create({
         email,
         name,
         personPhysicalCard,
         password: passwordHash,
-        role: UserRoleEnum.COMMON,
-        userAddress,
-        userMetadata
+        role,
+        userAddress: userAddress || null,
+        userMetadata: userMetadata || null
       })
 
       const newUser = await this.userRepository.save(user)
@@ -121,7 +124,11 @@ export class UsersService {
     return this.userRepository.getAll()
   }
 
-  async save (user:UserEntity):Promise<UserEntity> {
+  async save (user: UserEntity): Promise<UserEntity> {
     return this.userRepository.save(user)
+  }
+
+  async getCommonUsers () : Promise<UserEntity[]> {
+    return this.getCommonUsers()
   }
 }

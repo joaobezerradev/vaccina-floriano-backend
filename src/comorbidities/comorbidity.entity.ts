@@ -4,5 +4,5 @@ import { BaseEntity } from '../commons/entities/base.entity'
 @Entity('comorbidities')
 export class ComorbidityEntity extends BaseEntity {
   @Column()
-  message: string
+  type: string
 }

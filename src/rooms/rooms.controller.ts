@@ -1,9 +1,13 @@
-import { Controller, Post, Body, Get } from '@nestjs/common'
+import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common'
 import { RoomsService } from './rooms.service'
-import { CreateRoomDto } from './dto/create-room.dto'
+import { CreateRoomDto } from './dtos/create-room.dto'
 import { RoomEntity } from './room.entity'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller('rooms')
+@ApiTags('rooms')
+@UseGuards(AuthGuard('jwt'))
 export class RoomsController {
   constructor (private readonly roomsService: RoomsService) {}
 

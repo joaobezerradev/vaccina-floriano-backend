@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnprocessableEntityException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { AppointmentEntity } from './appointment.entity'
 import { CreateAppointmentDto } from './dtos/create-appointment.dto'
@@ -7,9 +7,11 @@ import { PriorityGroupsService } from '../priority-groups/priority-groups.servic
 import { RoomsService } from '../rooms/rooms.service'
 import { VaccinesService } from '../vaccines/vaccines.service'
 import { AppointmentRepository } from './appointment.repository'
-import { startOfDay } from 'date-fns'
 import { UsersService } from '../users/users.service'
 import { Not } from 'typeorm'
+import { startOfDayInBrazil } from '../commons/date'
+import { UserEntity } from '../users/user.entity'
+import { UserRoleEnum } from '../users/enums'
 
 @Injectable()
 export class AppointmentsService {
@@ -32,33 +34,36 @@ export class AppointmentsService {
   }
 
   async createAppointment (
-    createAppointmentDto: CreateAppointmentDto
+    createAppointmentDto: CreateAppointmentDto,
+    user: UserEntity
   ): Promise<AppointmentEntity> {
-    const { comorbidityId, date, priorityGroupId, userId, roomId } = createAppointmentDto
+    const { comorbidityId, date, priorityGroupId, roomId } = createAppointmentDto
+
+    if (user.role !== UserRoleEnum.COMMON) {
+      throw new UnprocessableEntityException('User needs have commmon role')
+    }
 
     const [availableVaccines] = await Promise.all([
-      this.vaccinesService.findByRoom(roomId, startOfDay(new Date(date))),
+      this.vaccinesService.findByRoom(roomId, startOfDayInBrazil(date)),
       this.comorbiditiesService.findOne(comorbidityId),
       this.priorityGroupsService.findOne(priorityGroupId),
       this.roomsService.findOne(roomId),
-      this.usersService.findOne(userId)
+      this.usersService.findOne(user.id)
     ])
 
     const vaccine = availableVaccines[0]
 
-    const previewsAppointment = await this.findOne(userId)
-
     const newAppointment = this.appointmentRepository.create({
-      date: new Date(date),
-      userId,
-      doseNumber: previewsAppointment ? 2 : 1,
+      date,
+      userId: user.id,
+      doseNumber: null,
       comorbidityId,
       priorityGroupId,
       vaccineId: vaccine.id
 
     })
 
-    console.log(newAppointment)
+    vaccine.ownerId = user.id
 
     await this.vaccinesService.save(vaccine)
     return this.appointmentRepository.save(newAppointment)

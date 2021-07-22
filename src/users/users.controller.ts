@@ -3,9 +3,12 @@ import { UsersService } from './users.service'
 import { CreateUserDto } from './dtos/create-user.dto'
 import { AuthGuard } from '@nestjs/passport'
 import { UserEntity } from './user.entity'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller('users')
+@ApiTags('users')
 @UseGuards(AuthGuard('jwt'))
+
 export class UsersController {
   constructor (private readonly usersService: UsersService) {}
 

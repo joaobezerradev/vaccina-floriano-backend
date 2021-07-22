@@ -4,7 +4,7 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { CreateRoomDto } from './dto/create-room.dto'
+import { CreateRoomDto } from './dtos/create-room.dto'
 import { RoomEntity } from './room.entity'
 import { RoomRepository } from './room.repository'
 
@@ -16,19 +16,18 @@ export class RoomsService {
   ) {}
 
   async create (createRoomDto: CreateRoomDto):Promise<RoomEntity> {
-    const { name, shift } = createRoomDto
+    const { name } = createRoomDto
 
     const foundRoom = await this.roomRepository.findOne({
       where: {
         name,
-        shift,
         deletedAt: null
       }
     })
 
     if (foundRoom) {
       throw new ConflictException(
-        `Room ${name} and shift ${shift} already exists.`
+        `Room ${name} already exists.`
       )
     }
 

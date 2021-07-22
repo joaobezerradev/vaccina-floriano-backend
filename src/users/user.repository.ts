@@ -1,6 +1,6 @@
-import { now } from '../commons/utils/now.date'
-import { EntityRepository, Repository } from 'typeorm'
+import { Connection, EntityRepository, Repository } from 'typeorm'
 import { GetUserDto } from './dtos/get-user.dto'
+import { UserRoleEnum } from './enums'
 import { UserEntity } from './user.entity'
 
 @EntityRepository(UserEntity)
@@ -13,20 +13,8 @@ export class UserRepository extends Repository<UserEntity> {
     })
   }
 
-  async createUser (user: UserEntity): Promise<UserEntity> {
-    const newUser = this.create(user)
-    newUser.createdAt = now()
-    return this.save(newUser)
-  }
-
   async saveUser (updateUser: Partial<UserEntity>): Promise<UserEntity> {
     return this.save(updateUser)
-  }
-
-  async removeUser (user: UserEntity): Promise<void> {
-    user.deletedAt = now()
-
-    await this.save(user)
   }
 
   async getUser (getUserDto: GetUserDto): Promise<UserEntity> {
@@ -45,5 +33,17 @@ export class UserRepository extends Repository<UserEntity> {
         { securityStamp, deletedAt: null }
       ]
     })
+  }
+
+  getCommonUsers ():Promise<UserEntity[]> {
+    return this.find({
+      where: {
+        role: UserRoleEnum.COMMON
+      }
+    })
+  }
+
+  getConnection (): Connection {
+    return this.manager.connection
   }
 }

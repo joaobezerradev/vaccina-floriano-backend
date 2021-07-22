@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { now } from '../commons/utils/now.date'
+import { CreatePriorityGroupDto } from './dtos/create-priority-group.dto'
 import { PriorityGroupEntity } from './priority-group.entity'
 import { PriorityGroupRepository } from './priority-group.repository'
 
@@ -15,11 +15,8 @@ export class PriorityGroupsService {
     return this.priorityGroupRepository.getAllPriorityGroups()
   }
 
-  async createPriorityGroup (message: string): Promise<PriorityGroupEntity> {
-    const newPriorityGroup = this.priorityGroupRepository.create({
-      message,
-      createdAt: now()
-    })
+  async createPriorityGroup (createPriorityGroup:CreatePriorityGroupDto): Promise<PriorityGroupEntity> {
+    const newPriorityGroup = this.priorityGroupRepository.create(createPriorityGroup)
 
     return this.priorityGroupRepository.save(newPriorityGroup)
   }

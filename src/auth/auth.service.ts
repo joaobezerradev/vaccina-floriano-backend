@@ -7,7 +7,6 @@ import {
 import { JwtService, JwtSignOptions } from '@nestjs/jwt'
 import { UserEntity } from '../users/user.entity'
 import { errorHandler } from '../commons/handlers/error.handler'
-import { now } from '../commons/utils/now.date'
 
 import { UsersService } from '../users/users.service'
 import { AuthCredentialsDto } from './dtos/auth-credentials-filter.dto'
@@ -18,12 +17,14 @@ import { SignUpDto } from './dtos/sign-up.dto'
 import { DecodedToken } from './types/decoded-token.type'
 import { JwtPayload } from './types/jwt-payload.type'
 import { CreateToken, Token } from './types/token.type'
+import { UserRoleEnum } from '../users/enums'
+import { toISOStringInBrazil } from '../commons/date'
 
 @Injectable()
 export class AuthService {
   constructor (
-    private jwtService: JwtService,
-    private userService: UsersService
+    private readonly jwtService: JwtService,
+    private readonly userService: UsersService
   ) {}
 
   async signUp (signUpDto: SignUpDto): Promise<UserEntity> {
@@ -83,7 +84,7 @@ export class AuthService {
       const foundUser = await this.userService.getUserBySecurityStamp(security)
 
       if (!foundUser.emailConfirmedAt) {
-        foundUser.emailConfirmedAt = now()
+        foundUser.emailConfirmedAt = toISOStringInBrazil()
       }
 
       foundUser.password = await foundUser.hashPassword(password)
@@ -148,12 +149,16 @@ export class AuthService {
       const user = await this.userService.getUserBySecurityStamp(security)
 
       if (user) {
-        user.emailConfirmedAt = now()
+        user.emailConfirmedAt = toISOStringInBrazil()
 
         await this.userService.save(user)
       }
     } catch (error) {
       throw errorHandler.handle(error)
     }
+  }
+
+  async signUpAdmin (signUpDto: SignUpDto): Promise<UserEntity> {
+    return this.userService.create({ ...signUpDto, role: UserRoleEnum.ADMIN })
   }
 }
